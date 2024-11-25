@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import hdbscan
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
+file_path = "C:/Users/estre/OneDrive/Desktop/개발/20242R0136COSE41600/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
 #file_path = "C:/Users/estre/Downloads/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-961578277.pcd"
 
 # PCD 파일 읽기
@@ -27,6 +27,7 @@ sor_pcd = downsample_pcd.select_by_index(ind)
 plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.2,
                                              ransac_n=4,
                                              num_iterations=4000)
+
 
 # 도로에 속하지 않는 포인트 (outliers) 추출
 final_point = sor_pcd.select_by_index(inliers, invert=True)
