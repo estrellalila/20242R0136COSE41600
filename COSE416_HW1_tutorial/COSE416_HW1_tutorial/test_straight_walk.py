@@ -8,7 +8,7 @@ import hdbscan
 #file_path = "C:/Users/estre/OneDrive/Desktop/개발/20242R0136COSE41600/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
 
 #straight_walk
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/01_straight_walk/pcd/pcd_000212.pcd"
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/01_straight_walk/pcd/pcd_000283.pcd"
 
 #straight_crawl
 #file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/03_straight_crawl/pcd/pcd_000844.pcd"
@@ -24,7 +24,7 @@ voxel_size = 0.1  # 필요에 따라 voxel 크기를 조정하세요.
 downsample_pcd = original_pcd.voxel_down_sample(voxel_size=voxel_size)
 
 # SOR (Statistical Outlier Removal)
-cl, ind = downsample_pcd.remove_statistical_outlier(nb_neighbors=30, std_ratio=12.0)
+cl, ind = downsample_pcd.remove_statistical_outlier(nb_neighbors=20, std_ratio=8.0)
 sor_pcd = downsample_pcd.select_by_index(ind)
 
 # RANSAC을 사용하여 평면 추정

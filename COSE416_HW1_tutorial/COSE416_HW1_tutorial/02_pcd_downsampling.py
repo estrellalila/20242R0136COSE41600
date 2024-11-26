@@ -5,11 +5,16 @@ import matplotlib.pyplot as plt
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
 #file_path = "C:/Users/estre/Downloads/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
+
+#straight_walk
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/01_straight_walk/pcd/pcd_000283.pcd"
+
+
 #straight_crawl
 #file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/03_straight_crawl/pcd/pcd_000844.pcd"
 
 #straight_duck
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/05_straight_duck_walk/pcd/pcd_000312.pcd"
+#file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/05_straight_duck_walk/pcd/pcd_000312.pcd"
 
 try:
     original_pcd = o3d.io.read_point_cloud(file_path)
@@ -21,19 +26,19 @@ except Exception as e:
 #original_pcd = o3d.io.read_point_cloud(file_path)
 
 # 빠른 연산 및 전처리를 위한 Voxel downsampling
-voxel_size = 0.1  # 필요에 따라 voxel 크기를 조정하세요.
+voxel_size = 0.02  # 필요에 따라 voxel 크기를 조정하세요.
 voxel_downsample_pcd = original_pcd.voxel_down_sample(voxel_size=voxel_size)
 print(f"Voxel Downsampled Point Cloud: {len(voxel_downsample_pcd.points)} points")
 
 # Statistical Outlier Removal (SOR) 적용
-cl, ind = voxel_downsample_pcd.remove_statistical_outlier(nb_neighbors=20, std_ratio=6.0)
+cl, ind = voxel_downsample_pcd.remove_statistical_outlier(nb_neighbors=30, std_ratio=12.0)
 sor_downsampled_pcd = voxel_downsample_pcd.select_by_index(ind)
 print(f"SOR Downsampled Point Cloud: {len(sor_downsampled_pcd.points)} points")
 
 # Radius Outlier Removal (ROR) 적용
-cl, ind = voxel_downsample_pcd.remove_radius_outlier(nb_points=6, radius=2.0)
-ror_downsampled_pcd = voxel_downsample_pcd.select_by_index(ind)
-print(f"ROR Downsampled Point Cloud: {len(ror_downsampled_pcd.points)} points")
+# cl, ind = voxel_downsample_pcd.remove_radius_outlier(nb_points=6, radius=2.0)
+# ror_downsampled_pcd = voxel_downsample_pcd.select_by_index(ind)
+# print(f"ROR Downsampled Point Cloud: {len(ror_downsampled_pcd.points)} points")
 
 # 각 포인트 클라우드에 색상 지정
 print(f"Type: {type(original_pcd)}")
@@ -45,8 +50,8 @@ voxel_downsample_pcd.paint_uniform_color([0, 0.5, 1])  # 파랑
 print("voxel-color complete")
 sor_downsampled_pcd.paint_uniform_color([1, 0, 0])  # 빨강
 print("sor-color complete")
-ror_downsampled_pcd.paint_uniform_color([0, 1, 0])  # 초록
-print("ror-color complete")
+# ror_downsampled_pcd.paint_uniform_color([0, 1, 0])  # 초록
+# print("ror-color complete")
 
 
 # 포인트 클라우드 시각화 함수
@@ -76,5 +81,5 @@ visualize_point_clouds([voxel_downsample_pcd],
 visualize_point_clouds([sor_downsampled_pcd], 
                        window_name="Original (Black), SOR (Red)", point_size=2.0)
 
-visualize_point_clouds([ror_downsampled_pcd], 
-                       window_name="Original (Black), ROR (Green)", point_size=2.0)
+# visualize_point_clouds([ror_downsampled_pcd], 
+#                        window_name="Original (Black), ROR (Green)", point_size=2.0)
