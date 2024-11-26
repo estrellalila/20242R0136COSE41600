@@ -6,9 +6,6 @@ import matplotlib.pyplot as plt
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
 #file_path = "C:/Users/estre/Downloads/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
 
-#straight_crawl
-#file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/03_straight_crawl/pcd/pcd_000844.pcd"
-
 #straight_duck
 file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/05_straight_duck_walk/pcd/pcd_000312.pcd"
 
@@ -31,46 +28,25 @@ sor_pcd = downsample_pcd.select_by_index(ind)
 # 빨강이 도로여야 함
 # threshold가 커야 도로를 감지하긴 하는데, 아닌 것도 포함시킴
 # RANSAC을 사용하여 평면 추정
-# plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.2,
-#                                              ransac_n=6,
-#                                              num_iterations=4000)
+plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.35,
+                                             ransac_n=3,
+                                             num_iterations=4000)
 
-# [a, b, c, d] = plane_model
-# print(f"Plane equation: {a:.2f}x + {b:.2f}y + {c:.2f}z + {d:.2f} = 0")
+[a, b, c, d] = plane_model
+print(f"Plane equation: {a:.2f}x + {b:.2f}y + {c:.2f}z + {d:.2f} = 0")
 
-# # 도로에 속하는 포인트 (inliers)
-# road_pcd = sor_pcd.select_by_index(inliers)
+# 도로에 속하는 포인트 (inliers)
+road_pcd = sor_pcd.select_by_index(inliers)
 
-# # 도로에 속하지 않는 포인트 (outliers)
-# non_road_pcd = sor_pcd.select_by_index(inliers, invert=True)
+# 도로에 속하지 않는 포인트 (outliers)
+non_road_pcd = sor_pcd.select_by_index(inliers, invert=True)
 
-# # 도로 영역을 초록색으로 표시
-# road_pcd.paint_uniform_color([1, 0, 0])  # 빨간색으로 표시
-# # 도로가 아닌 포인트를 초록색으로 표시
-# non_road_pcd.paint_uniform_color([0, 1, 0])  # 녹색으로 표시
+# 도로 영역을 초록색으로 표시
+road_pcd.paint_uniform_color([1, 0, 0])  # 빨간색으로 표시
+# 도로가 아닌 포인트를 초록색으로 표시
+non_road_pcd.paint_uniform_color([0, 1, 0])  # 녹색으로 표시
 
-def extract_multiple_planes(pcd, distance_threshold=0.25, ransac_n=3, num_iterations=1000, min_points=100):
-    remaining_pcd = pcd
-    planes = []
 
-    while len(remaining_pcd.points) > min_points:
-        plane_model, inliers = remaining_pcd.segment_plane(
-            distance_threshold=distance_threshold,
-            ransac_n=ransac_n,
-            num_iterations=num_iterations
-        )
-        planes.append((plane_model, remaining_pcd.select_by_index(inliers)))
-        remaining_pcd = remaining_pcd.select_by_index(inliers, invert=True)
-
-    return planes, remaining_pcd
-
-# 다중 평면 추출
-planes, non_road_points = extract_multiple_planes(sor_pcd)
-
-# 각 평면을 다른 색으로 시각화
-plane_colors = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 0]]
-for i, (plane_model, plane_pcd) in enumerate(planes):
-    plane_pcd.paint_uniform_color(plane_colors[i % len(plane_colors)])
 
 # 포인트 클라우드 시각화 함수
 def visualize_point_clouds(pcd_list, window_name="Point Cloud Visualization", point_size=1.0):
@@ -83,8 +59,6 @@ def visualize_point_clouds(pcd_list, window_name="Point Cloud Visualization", po
     vis.destroy_window()
 
 # 두 영역을 동시에 시각화 (포인트 크기를 원하는 크기로 조절 가능)
-# visualize_point_clouds([road_pcd, non_road_pcd], 
-#                        window_name="Road (Red) and Non-Road (Green) Points", point_size=2.0)
+visualize_point_clouds([road_pcd, non_road_pcd], 
+                       window_name="Road (Red) and Non-Road (Green) Points", point_size=2.0)
 
-# 시각화
-visualize_point_clouds([plane[1] for plane in planes] + [non_road_points])
