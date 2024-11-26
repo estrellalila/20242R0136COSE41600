@@ -5,7 +5,16 @@ import matplotlib.pyplot as plt
 import hdbscan
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/05_straight_duck_walk/pcd/pcd_000577.pcd"
+#file_path = "C:/Users/estre/OneDrive/Desktop/개발/20242R0136COSE41600/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
+
+#straight_walk
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/01_straight_walk/pcd/pcd_000212.pcd"
+
+#straight_crawl
+#file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/03_straight_crawl/pcd/pcd_000844.pcd"
+
+#straight_duck
+#file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/05_straight_duck_walk/pcd/pcd_000577.pcd"
 
 # PCD 파일 읽기
 original_pcd = o3d.io.read_point_cloud(file_path)
@@ -52,16 +61,16 @@ max_points_in_cluster = 150  # 클러스터 내 최대 포인트 수
 
 # 수직(높이)
 min_z_value = -1.5          # 클러스터 내 최소 Z값
-max_z_value = 1.5          # 클러스터 내 최대 Z값
+max_z_value = 1.5           # 클러스터 내 최대 Z값
 
 # 클러스터 자체의 높이
 min_height = 0.2            # Z값 차이의 최소값
 max_height = 2.0            # Z값 차이의 최대값
 
 # 밀집도 기준
-max_distance = 120.0         # 원점으로부터의 최대 거리
+max_distance = 120.0        # 원점으로부터의 최대 거리
 
-# 바운딩 박스 필터링 조건 추가 (너무 넓은 바운딩 박스 제외)
+# 바운딩 박스 필터링 조건 추가
 max_ratio = 3.0  # 가로/세로 비율의 최대 값 설정
 
 # 1번, 2번, 3번 조건을 모두 만족하는 클러스터 필터링 및 바운딩 박스 생성
@@ -108,15 +117,17 @@ def visualize_with_bounding_boxes(pcd, bounding_boxes, window_name="Filtered Clu
     
     vis.get_render_option().point_size = point_size
     
-    # 카메라 시점과 확대 상태 설정
-    ctr = vis.get_view_control()
+    # # 카메라 시점과 확대 상태 설정
+    # ctr = vis.get_view_control()
     
-    # 카메라 위치 설정 (카메라의 위치와 시선의 방향을 조정할 수 있음)
-    ctr.set_front([0.0, -1.0, 0.0])  # 카메라 방향 (x, y, z)
-    ctr.set_lookat([0.0, 0.0, 0.0])  # 시점 중앙 (보여줄 클러스터의 중심)
-    ctr.set_up([0.0, 0.0, 1.0])      # 카메라 위 방향
-    ctr.set_zoom(0.3)                # 줌 레벨 (0.0~1.0 범위로 조정, 작은 값일수록 확대)
-
+    # # 카메라 위치 설정을 위한 방향 및 시점 조정
+    # ctr.set_lookat([0.0, 0.0, 0.0])  # 클러스터 중심을 바라봄
+    # ctr.set_up([0.0, 0.0, 1.0])      # 위 방향 설정 (Z축 기준)
+    # ctr.set_front([-0.5, -2.0, 1.0])  # 카메라의 바라보는 방향 설정 (눈 방향 벡터)
+    
+    # # 줌 레벨 설정 (0.0~1.0 범위로 조정)
+    # ctr.set_zoom(0.08)                # 줌 레벨
+    
     # 시각화 실행
     vis.run()
     vis.destroy_window()
