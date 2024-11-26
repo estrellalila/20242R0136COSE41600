@@ -4,9 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
-#file_path = "C:/Users/estre/Downloads/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-961578277.pcd"
+#file_path = "C:/Users/estre/Downloads/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
+#straight_crawl
+#file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/03_straight_crawl/pcd/pcd_000844.pcd"
 
+#straight_duck
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/05_straight_duck_walk/pcd/pcd_000312.pcd"
 
 try:
     original_pcd = o3d.io.read_point_cloud(file_path)
@@ -23,7 +26,7 @@ voxel_downsample_pcd = original_pcd.voxel_down_sample(voxel_size=voxel_size)
 print(f"Voxel Downsampled Point Cloud: {len(voxel_downsample_pcd.points)} points")
 
 # Statistical Outlier Removal (SOR) 적용
-cl, ind = voxel_downsample_pcd.remove_statistical_outlier(nb_neighbors=30, std_ratio=12.0)
+cl, ind = voxel_downsample_pcd.remove_statistical_outlier(nb_neighbors=20, std_ratio=6.0)
 sor_downsampled_pcd = voxel_downsample_pcd.select_by_index(ind)
 print(f"SOR Downsampled Point Cloud: {len(sor_downsampled_pcd.points)} points")
 

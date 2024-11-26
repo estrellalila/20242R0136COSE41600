@@ -5,8 +5,13 @@ import matplotlib.pyplot as plt
 import hdbscan
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
-file_path = "C:/Users/estre/OneDrive/Desktop/개발/20242R0136COSE41600/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
-#file_path = "C:/Users/estre/Downloads/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-961578277.pcd"
+#file_path = "C:/Users/estre/OneDrive/Desktop/개발/20242R0136COSE41600/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
+
+#straight_crawl
+#file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/03_straight_crawl/pcd/pcd_000844.pcd"
+
+#straight_duck
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/05_straight_duck_walk/pcd/pcd_000577.pcd"
 
 # PCD 파일 읽기
 original_pcd = o3d.io.read_point_cloud(file_path)
@@ -24,13 +29,35 @@ cl, ind = downsample_pcd.remove_statistical_outlier(nb_neighbors=30, std_ratio=1
 sor_pcd = downsample_pcd.select_by_index(ind)
 
 # RANSAC을 사용하여 평면 추정
-plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.2,
-                                             ransac_n=4,
-                                             num_iterations=4000)
+# plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.4,
+#                                              ransac_n=12,
+#                                              num_iterations=4000)
 
 
-# 도로에 속하지 않는 포인트 (outliers) 추출
-final_point = sor_pcd.select_by_index(inliers, invert=True)
+# # 도로에 속하지 않는 포인트 (outliers) 추출
+# final_point = sor_pcd.select_by_index(inliers, invert=True)
+def extract_multiple_planes(pcd, distance_threshold=0.25, ransac_n=3, num_iterations=1000, min_points=100):
+    remaining_pcd = pcd
+    planes = []
+
+    while len(remaining_pcd.points) > min_points:
+        plane_model, inliers = remaining_pcd.segment_plane(
+            distance_threshold=distance_threshold,
+            ransac_n=ransac_n,
+            num_iterations=num_iterations
+        )
+        planes.append((plane_model, remaining_pcd.select_by_index(inliers)))
+        remaining_pcd = remaining_pcd.select_by_index(inliers, invert=True)
+
+    return planes, remaining_pcd
+
+# 다중 평면 추출
+planes, non_road_points = extract_multiple_planes(sor_pcd)
+
+# 각 평면을 다른 색으로 시각화
+plane_colors = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 0]]
+for i, (plane_model, plane_pcd) in enumerate(planes):
+    plane_pcd.paint_uniform_color(plane_colors[i % len(plane_colors)])
 
 
 # DBSCAN 클러스터링 적용
@@ -43,7 +70,7 @@ final_point = sor_pcd.select_by_index(inliers, invert=True)
 
 
 # Z축 강조 가중치 적용, 적당히 긴 사람 형상 위해서,,
-weighted_points = np.asarray(final_point.points)
+weighted_points = np.asarray(planes.points)
 weighted_points[:, 2] *= 1.2  # Z축에 가중치 추가
 
 # HDBSCAN 클러스터링
@@ -64,7 +91,7 @@ labels = clusterer.fit_predict(weighted_points)
 colors = np.zeros((len(labels), 3))  # 기본 검정색 (노이즈)
 colors[labels >= 0] = [0, 0, 1]  # 파란색으로 지정
 
-final_point.colors = o3d.utility.Vector3dVector(colors)
+planes.colors = o3d.utility.Vector3dVector(colors)
 
 # 필터링 기준 설정
 min_points_in_cluster = 30   # 클러스터 내 최소 포인트 수
@@ -72,13 +99,13 @@ max_points_in_cluster = 150  # 클러스터 내 최대 포인트 수
 
 # 수직(높이)
 # 차량 위 센서 기준임 (사람키기준)
-min_z_value = -1.5           # 클러스터 내 최소 Z값
+min_z_value = -1.5          # 클러스터 내 최소 Z값
 # 이거 높이니까 되는데..?
 max_z_value = 1.5         # 클러스터 내 최대 Z값
 
 # 클러스터 자체의 높이
 # 키가 낮은 객체(아이, 앉아 있는 사람 등)도 포함하려면 min_height를 낮추는 것이 좋습니다.
-min_height = 0.3            # Z값 차이의 최소값
+min_height = 0.2            # Z값 차이의 최소값
 max_height = 2.0            # Z값 차이의 최대값
 
 #밀집도 기준, 동적인 사람도 포함해야 한다(보폭 커질 떄 등)
@@ -92,7 +119,7 @@ bboxes_1234 = []
 for i in range(labels.max() + 1):
     cluster_indices = np.where(labels == i)[0]
     if min_points_in_cluster <= len(cluster_indices) <= max_points_in_cluster:
-        cluster_pcd = final_point.select_by_index(cluster_indices)
+        cluster_pcd = planes.select_by_index(cluster_indices)
         points = np.asarray(cluster_pcd.points)
         z_values = points[:, 2]
         z_min = z_values.min()
@@ -133,6 +160,6 @@ def visualize_with_bounding_boxes(pcd, bounding_boxes, window_name="Filtered Clu
     vis.destroy_window()
 
 # 시각화 (포인트 크기를 원하는 크기로 조절 가능)
-visualize_with_bounding_boxes(final_point, bboxes_1234, point_size=2.0)
+visualize_with_bounding_boxes(planes, bboxes_1234, point_size=2.0)
 
 #풀숲 너무 납작한 상자모양
