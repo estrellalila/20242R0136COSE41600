@@ -7,15 +7,7 @@ import hdbscan
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
 file_path = "C:/Users/estre/OneDrive/Desktop/개발/20242R0136COSE41600/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
 
-#straight_walk
-#file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/01_straight_walk/pcd/pcd_000273.pcd"
 
-
-#straight_crawl
-#file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/03_straight_crawl/pcd/pcd_000844.pcd"
-
-#straight_duck
-#file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/05_straight_duck_walk/pcd/pcd_000577.pcd"
 
 # PCD 파일 읽기
 original_pcd = o3d.io.read_point_cloud(file_path)
@@ -83,7 +75,7 @@ max_points_in_cluster = 100  # 클러스터 내 최대 포인트 수
 # 차량 위 센서 기준임 (사람키기준)
 min_z_value = -1.5          # 클러스터 내 최소 Z값
 # 이거 높이니까 되는데..?
-max_z_value = 5.0         # 클러스터 내 최대 Z값
+max_z_value = 2.0         # 클러스터 내 최대 Z값
 
 # 클러스터 자체의 높이
 # 키가 낮은 객체(아이, 앉아 있는 사람 등)도 포함하려면 min_height를 낮추는 것이 좋습니다.
