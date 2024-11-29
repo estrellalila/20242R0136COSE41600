@@ -4,10 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
-#file_path = "C:/Users/estre/Downloads/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
+file_path = "C:/Users/estre/OneDrive/Desktop/개발/20242R0136COSE41600/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
 
 #straight_duck
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/05_straight_duck_walk/pcd/pcd_000312.pcd"
+#file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/05_straight_duck_walk/pcd/pcd_000312.pcd"
 
 # PCD 파일 읽기
 original_pcd = o3d.io.read_point_cloud(file_path)
@@ -28,8 +28,8 @@ sor_pcd = downsample_pcd.select_by_index(ind)
 # 빨강이 도로여야 함
 # threshold가 커야 도로를 감지하긴 하는데, 아닌 것도 포함시킴
 # RANSAC을 사용하여 평면 추정
-plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.35,
-                                             ransac_n=3,
+plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.2,
+                                             ransac_n=4,
                                              num_iterations=4000)
 
 [a, b, c, d] = plane_model

@@ -5,18 +5,18 @@ import matplotlib.pyplot as plt
 import hdbscan
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
-#file_path = "C:/Users/estre/OneDrive/Desktop/개발/20242R0136COSE41600/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
+file_path = "C:/Users/estre/OneDrive/Desktop/개발/20242R0136COSE41600/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-665925967.pcd"
 #file_path = "C:/Users/estre/Downloads/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data/1727320101-961578277.pcd"
 
 #straight_walk
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/01_straight_walk/pcd/pcd_000283.pcd"
+#file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/01_straight_walk/pcd/pcd_000283.pcd"
 
 
 # PCD 파일 읽기
 original_pcd = o3d.io.read_point_cloud(file_path)
 
 # Voxel Downsampling 수행
-voxel_size = 0.05  # 필요에 따라 voxel 크기를 조정
+voxel_size = 0.1  # 필요에 따라 voxel 크기를 조정
 downsample_pcd = original_pcd.voxel_down_sample(voxel_size=voxel_size)
 
 # Radius Outlier Removal (ROR) 적용
@@ -29,14 +29,14 @@ sor_pcd = downsample_pcd.select_by_index(ind)
 
 # RANSAC을 사용하여 평면 추정
 plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.2,
-                                             ransac_n=5,
+                                             ransac_n=4,
                                              num_iterations=4000)
 
 # 도로에 속하지 않는 포인트 (outliers) 추출
 final_point = sor_pcd.select_by_index(inliers, invert=True)
 
 # DBSCAN 클러스터링 적용
-# epsilon은 작아야 구별이 잘 되는 듯
+#epsilon은 작아야 구별이 잘 되는 듯
 # with o3d.utility.VerbosityContextManager(o3d.utility.VerbosityLevel.Debug) as cm:
 #     labels = np.array(final_point.cluster_dbscan(eps=0.25, min_points=13, print_progress=True))
 
@@ -52,7 +52,7 @@ weighted_points[:, 2] *= 1.2  # Z축에 가중치 추가
 # HDBSCAN 클러스터링
 clusterer = hdbscan.HDBSCAN(
     min_cluster_size=20,      # 클러스터 내 최소 점 개수
-    min_samples=8,            # 핵심 점으로 간주할 최소 이웃 수
+    min_samples=13,            # 핵심 점으로 간주할 최소 이웃 수
     metric='manhattan',       # 거리 척도
     cluster_selection_epsilon=0.1,  # 클러스터 선택 임계값
     allow_single_cluster=False  # 하나의 클러스터 허용 비활성화
@@ -80,5 +80,5 @@ def visualize_point_cloud_with_point_size(pcd, window_name="Point Cloud Visualiz
 
 # 시각화 (포인트 크기를 원하는 크기로 조절 가능)
 visualize_point_cloud_with_point_size(final_point, 
-                                      window_name="DBSCAN Clustered Points", point_size=2.0)
+                                      window_name="HDBSCAN Clustered Points", point_size=2.0)
 

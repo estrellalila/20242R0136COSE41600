@@ -34,13 +34,6 @@ plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.2,
 final_point = sor_pcd.select_by_index(inliers, invert=True)
 
 
-# DBSCAN 클러스터링 적용
-# with o3d.utility.VerbosityContextManager(o3d.utility.VerbosityLevel.Debug) as cm:
-#     labels = np.array(final_point.cluster_dbscan(eps=0.25, min_points=13, print_progress=True))
-
-
-# clusterer = hdbscan.HDBSCAN(min_cluster_size=20, min_samples=15)
-# labels = clusterer.fit_predict(np.asarray(final_point.points))
 
 
 # Z축 강조 가중치 적용, 적당히 긴 사람 형상 위해서,,
@@ -88,80 +81,7 @@ max_distance = 120.0         # 원점으로부터의 최대 거리
 # 바운딩 박스 필터링 조건 추가 (너무 넓은 바운딩 박스 제외)
 max_ratio = 4.0  # 가로/세로 비율의 최대 값 설정
 
-# # 1번, 2번, 3번 조건을 모두 만족하는 클러스터 필터링 및 바운딩 박스 생성
-# bboxes_1234 = []
-# for i in range(labels.max() + 1):
-#     cluster_indices = np.where(labels == i)[0]
-#     if min_points_in_cluster <= len(cluster_indices) <= max_points_in_cluster:
-#         cluster_pcd = final_point.select_by_index(cluster_indices)
-#         points = np.asarray(cluster_pcd.points)
-#         z_values = points[:, 2]
-#         z_min = z_values.min()
-#         z_max = z_values.max()
-#         if min_z_value <= z_min and z_max <= max_z_value:
-#             height_diff = z_max - z_min
-#             if min_height <= height_diff <= max_height:
-#                 distances = np.linalg.norm(points, axis=1)
-#                 if distances.max() <= max_distance:
-#                     # 바운딩 박스 생성
-#                     bbox = cluster_pcd.get_axis_aligned_bounding_box()
-#                     bbox_color = (1, 0, 0)
-                    
-#                     # 바운딩 박스의 크기 계산
-#                     extent = bbox.get_extent()
-#                     width = extent[0]  # X축 크기
-#                     length = extent[1]  # Y축 크기
-#                     height = extent[2]  # Z축 크기
-                    
-#                     # 가로/세로 비율이 너무 큰 경우 제외
-#                     if width / length > max_ratio or length / width > max_ratio:
-#                         continue  # 비율이 너무 큰 경우, 해당 바운딩 박스를 제외
-                    
-#                     bbox.color = bbox_color
-#                     bboxes_1234.append(bbox)
 
-
-
-# # 포인트 클라우드 및 바운딩 박스를 시각화하는 함수
-# def visualize_with_bounding_boxes(pcd, bounding_boxes, window_name="Filtered Clusters and Bounding Boxes", point_size=1.0):
-#     vis = o3d.visualization.Visualizer()
-#     vis.create_window(window_name=window_name)
-#     vis.add_geometry(pcd)
-#     for bbox in bounding_boxes:
-#         vis.add_geometry(bbox)
-#     vis.get_render_option().point_size = point_size
-#     vis.run()
-#     vis.destroy_window()
-
-# # 시각화 (포인트 크기를 원하는 크기로 조절 가능)
-# visualize_with_bounding_boxes(final_point, bboxes_1234, point_size=1.0)
-
-# 필터링 조건을 만족하는 객체 추출 및 바운딩 박스 생성
-# def filter_and_visualize_clusters(remaining_pcd, labels, threshold_ratio=3.0):
-#     bboxes = []
-#     for i in range(labels.max() + 1):
-#         cluster_indices = np.where(labels == i)[0]
-#         if min_points_in_cluster <= len(cluster_indices) <= max_points_in_cluster:
-#             cluster_pcd = remaining_pcd.select_by_index(cluster_indices)
-#             points = np.asarray(cluster_pcd.points)
-#             z_values = points[:, 2]
-#             z_min, z_max = z_values.min(), z_values.max()
-            
-#             if min_z_value <= z_min and z_max <= max_z_value:
-#                 height_diff = z_max - z_min
-#                 if min_height <= height_diff <= max_height:
-#                     distances = np.linalg.norm(points, axis=1)
-#                     if distances.max() <= max_distance:
-#                         bbox = cluster_pcd.get_axis_aligned_bounding_box()
-#                         extent = bbox.get_extent()
-#                         width, length, height = extent[0], extent[1], extent[2]
-                        
-#                         # XY 면적 / Z 높이 비율 기반 필터링
-#                         xy_area = width * length
-#                         if xy_area / height <= threshold_ratio:
-#                             bbox.color = (1, 0, 0)  # 빨간색
-#                             bboxes.append(bbox)
-#     return bboxes
 # 필터링 조건을 만족하는 객체 추출 및 바운딩 박스 생성
 def filter_and_visualize_clusters(remaining_pcd, labels, threshold_ratio=3.0, max_side_area_ratio=2.5):
     bboxes = []
