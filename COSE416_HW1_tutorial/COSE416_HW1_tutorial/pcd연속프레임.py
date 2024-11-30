@@ -9,7 +9,7 @@ FRAME_RATE = 5
 FRAME_INTERVAL = 1.0 / FRAME_RATE
 
 # PCD 파일 경로 설정
-pcd_dir = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/01_straight_walk/pcd"  # PCD 파일 폴더 경로를 설정하세요.
+pcd_dir = "C:/Users/estre/OneDrive/Desktop/개발/20242R0136COSE41600/COSE416_HW1_tutorial/COSE416_HW1_tutorial/test_data"  # PCD 파일 폴더 경로를 설정하세요.
 pcd_files = sorted([os.path.join(pcd_dir, f) for f in os.listdir(pcd_dir) if f.endswith(".pcd")])
 
 # 필터 및 바운딩 박스 설정
@@ -21,7 +21,7 @@ max_z_value = 1.5
 min_height = 0.3
 max_height = 2.0
 max_distance = 120.0
-max_ratio = 3.0
+max_ratio = 4.0
 
 
 # 포인트 클라우드 및 바운딩 박스를 시각화하는 함수
@@ -56,8 +56,8 @@ def process_pcd(file_path):
 
     # HDBSCAN 클러스터링
     clusterer = hdbscan.HDBSCAN(
-        min_cluster_size=15,
-        min_samples=10,
+        min_cluster_size=20,
+        min_samples=13,
         metric="euclidean",
         cluster_selection_epsilon=0.1,
         allow_single_cluster=False,
@@ -77,23 +77,28 @@ def process_pcd(file_path):
             cluster_pcd = final_point.select_by_index(cluster_indices)
             points = np.asarray(cluster_pcd.points)
             z_values = points[:, 2]
-            z_min = z_values.min()
-            z_max = z_values.max()
+            z_min, z_max = z_values.min(), z_values.max()
+            
             if min_z_value <= z_min and z_max <= max_z_value:
                 height_diff = z_max - z_min
                 if min_height <= height_diff <= max_height:
                     distances = np.linalg.norm(points, axis=1)
                     if distances.max() <= max_distance:
-                        # 바운딩 박스 생성
                         bbox = cluster_pcd.get_axis_aligned_bounding_box()
                         extent = bbox.get_extent()
-                        width, length = extent[0], extent[1]
-
-                        # 비율 검증
-                        if width / length > max_ratio or length / width > max_ratio:
-                            continue
-                        bbox.color = (1, 0, 0)
-                        bboxes.append(bbox)
+                        width, length, height = extent[0], extent[1], extent[2]
+                        
+                        # XY 면적 / Z 높이 비율 기반 필터링
+                        xy_area = width * length
+                        if xy_area / height <= 3.0:
+                            # 옆면적 비율 필터링
+                            side_area_1 = width * height
+                            side_area_2 = length * height
+                            side_area_ratio = max(side_area_1, side_area_2) / min(side_area_1, side_area_2)
+                            
+                            if side_area_ratio <= 2.5:
+                                bbox.color = (1, 0, 0)  # 빨간색
+                                bboxes.append(bbox)
     return final_point, bboxes
 
 
