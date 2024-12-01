@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import hdbscan
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/04_zigzag_walk/pcd/pcd_000138.pcd"
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/01_straight_walk/pcd/pcd_000103.pcd"
 
 # PCD 파일 읽기
 original_pcd = o3d.io.read_point_cloud(file_path)

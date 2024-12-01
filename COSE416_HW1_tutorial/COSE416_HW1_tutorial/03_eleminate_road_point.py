@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/04_zigzag_walk/pcd/pcd_000138.pcd"
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/06_straight_crawl/pcd/pcd_000505.pcd"
 
 #straight_duck
 #file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/05_straight_duck_walk/pcd/pcd_000312.pcd"
@@ -28,9 +28,9 @@ sor_pcd = downsample_pcd.select_by_index(ind)
 # 빨강이 도로여야 함
 # threshold가 커야 도로를 감지하긴 하는데, 아닌 것도 포함시킴
 # RANSAC을 사용하여 평면 추정
-plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.1,
+plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.2,
                                              ransac_n=5,
-                                             num_iterations=4000)
+                                             num_iterations=3000)
 
 [a, b, c, d] = plane_model
 print(f"Plane equation: {a:.2f}x + {b:.2f}y + {c:.2f}z + {d:.2f} = 0")

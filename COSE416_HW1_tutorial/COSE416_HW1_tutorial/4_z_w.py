@@ -6,7 +6,7 @@ import hdbscan
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
 #straight_walk
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/04_zigzag_walk/pcd/pcd_000338.pcd"
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/04_zigzag_walk/pcd/pcd_000108.pcd"
 # PCD 파일 읽기
 original_pcd = o3d.io.read_point_cloud(file_path)
 
@@ -130,6 +130,16 @@ def visualize_with_bounding_boxes(pcd, bounding_boxes, window_name="Filtered Clu
     for bbox in bounding_boxes:
         vis.add_geometry(bbox)
     vis.get_render_option().point_size = point_size
+    
+        # 뷰 컨트롤러 가져오기
+    view_ctl = vis.get_view_control()
+
+    # 카메라 줌 설정
+    view_ctl.set_zoom(0.3)  # 줌 비율 (기본값은 1.0, 더 작은 값으로 확대 가능)
+    view_ctl.set_front([0, -1.5, 1])  # 카메라가 점군을 보는 방향
+    view_ctl.set_lookat([0, 0, 3])  # 카메라가 보는 중심점
+    view_ctl.set_up([0, 0.5, 0])     # 카메라의 위쪽 방향
+    
     vis.run()
     vis.destroy_window()
 

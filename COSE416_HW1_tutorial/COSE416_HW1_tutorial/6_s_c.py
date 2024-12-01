@@ -6,7 +6,7 @@ import hdbscan
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
 #straight_walk
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/02_straight_duck_walk/pcd/pcd_000452.pcd"
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/06_straight_crawl/pcd/pcd_000755.pcd"
 
 # PCD 파일 읽기
 original_pcd = o3d.io.read_point_cloud(file_path)
@@ -24,9 +24,9 @@ cl, ind = downsample_pcd.remove_statistical_outlier(nb_neighbors=20, std_ratio=6
 sor_pcd = downsample_pcd.select_by_index(ind)
 
 # RANSAC을 사용하여 평면 추정
-plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.2,
-                                             ransac_n=5,
-                                             num_iterations=3000)
+plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.1,
+                                            ransac_n=5,
+                                            num_iterations=4000)
 
 
 # 도로에 속하지 않는 포인트 (outliers) 추출
@@ -67,25 +67,25 @@ colors[labels >= 0] = [0, 0, 1]  # 파란색으로 지정
 final_point.colors = o3d.utility.Vector3dVector(colors)
 
 # 필터링 기준 설정
-min_points_in_cluster = 40   # 클러스터 내 최소 포인트 수
+min_points_in_cluster = 10   # 클러스터 내 최소 포인트 수
 max_points_in_cluster = 100  # 클러스터 내 최대 포인트 수
 
 # 수직(높이)
 # 차량 위 센서 기준임 (사람키기준)
-min_z_value = 0.0          # 클러스터 내 최소 Z값
+min_z_value = -2.0          # 클러스터 내 최소 Z값
 # 이거 높이니까 되는데..?
-max_z_value = 5.0         # 클러스터 내 최대 Z값
+max_z_value = 0.5         # 클러스터 내 최대 Z값
 
 # 클러스터 자체의 높이
 # 키가 낮은 객체(아이, 앉아 있는 사람 등)도 포함하려면 min_height를 낮추는 것이 좋습니다.
-min_height = 0.5            # Z값 차이의 최소값
-max_height = 2.5            # Z값 차이의 최대값
+min_height = 0.3            # Z값 차이의 최소값
+max_height = 2.0           # Z값 차이의 최대값
 
 #밀집도 기준, 동적인 사람도 포함해야 한다(보폭 커질 떄 등)
 max_distance = 150.0         # 원점으로부터의 최대 거리
 
 # 바운딩 박스 필터링 조건 추가 (너무 넓은 바운딩 박스 제외)
-max_ratio = 5.0  # 가로/세로 비율의 최대 값 설정
+max_ratio = 4.0  # 가로/세로 비율의 최대 값 설정
 
 # # 1번, 2번, 3번 조건을 모두 만족하는 클러스터 필터링 및 바운딩 박스 생성
 

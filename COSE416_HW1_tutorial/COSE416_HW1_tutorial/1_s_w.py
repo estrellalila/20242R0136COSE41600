@@ -3,6 +3,11 @@ import open3d as o3d
 import numpy as np
 import matplotlib.pyplot as plt
 import hdbscan
+import time
+import glob
+
+# 기본 설정
+FRAME_INTERVAL = 0.2  # 각 프레임 간격 (초 단위, 예: 0.2초는 5 FPS)
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
 #straight_walk
@@ -25,8 +30,8 @@ sor_pcd = downsample_pcd.select_by_index(ind)
 
 # RANSAC을 사용하여 평면 추정
 plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.2,
-                                             ransac_n=4,
-                                             num_iterations=3000)
+                                            ransac_n=5,
+                                            num_iterations=3000)
 
 
 # 도로에 속하지 않는 포인트 (outliers) 추출
@@ -49,9 +54,9 @@ weighted_points[:, 2] *= 1.3  # Z축에 가중치 추가
 # HDBSCAN 클러스터링
 clusterer = hdbscan.HDBSCAN(
     #20이하인데 이게..(20)
-    min_cluster_size=20,      # 클러스터 내 최소 점 개수
+    min_cluster_size=15,      # 클러스터 내 최소 점 개수
     #10-15 유지 (13)
-    min_samples=13,            # 핵심 점으로 간주할 최소 이웃 수
+    min_samples=10,            # 핵심 점으로 간주할 최소 이웃 수
     metric='euclidean',       # 거리 척도
     cluster_selection_epsilon=0.2,  # 클러스터 선택 임계값
     allow_single_cluster=False  # 하나의 클러스터 허용 비활성화
@@ -67,22 +72,22 @@ colors[labels >= 0] = [0, 0, 1]  # 파란색으로 지정
 final_point.colors = o3d.utility.Vector3dVector(colors)
 
 # 필터링 기준 설정
-min_points_in_cluster = 60   # 클러스터 내 최소 포인트 수
-max_points_in_cluster = 120  # 클러스터 내 최대 포인트 수
+min_points_in_cluster = 40   # 클러스터 내 최소 포인트 수
+max_points_in_cluster = 90  # 클러스터 내 최대 포인트 수
 
 # 수직(높이)
 # 차량 위 센서 기준임 (사람키기준)
-min_z_value = 0.2          # 클러스터 내 최소 Z값
+min_z_value = 0.0          # 클러스터 내 최소 Z값
 # 이거 높이니까 되는데..?
-max_z_value = 5.0         # 클러스터 내 최대 Z값
+max_z_value = 6.0         # 클러스터 내 최대 Z값
 
 # 클러스터 자체의 높이
 # 키가 낮은 객체(아이, 앉아 있는 사람 등)도 포함하려면 min_height를 낮추는 것이 좋습니다.
-min_height = 0.5            # Z값 차이의 최소값
+min_height = 0.3            # Z값 차이의 최소값
 max_height = 2.5            # Z값 차이의 최대값
 
 #밀집도 기준, 동적인 사람도 포함해야 한다(보폭 커질 떄 등)
-max_distance = 150.0         # 원점으로부터의 최대 거리
+max_distance = 120.0         # 원점으로부터의 최대 거리
 
 # 바운딩 박스 필터링 조건 추가 (너무 넓은 바운딩 박스 제외)
 max_ratio = 4.0  # 가로/세로 비율의 최대 값 설정
@@ -131,6 +136,15 @@ def visualize_with_bounding_boxes(pcd, bounding_boxes, window_name="Filtered Clu
     for bbox in bounding_boxes:
         vis.add_geometry(bbox)
     vis.get_render_option().point_size = point_size
+
+    # 뷰 컨트롤러 가져오기
+    view_ctl = vis.get_view_control()
+
+    # 카메라 줌 설정
+    view_ctl.set_zoom(0.3)  # 줌 비율 (기본값은 1.0, 더 작은 값으로 확대 가능)
+    view_ctl.set_front([0, -1.5, 1])  # 카메라가 점군을 보는 방향
+    view_ctl.set_lookat([0, 0, 3])  # 카메라가 보는 중심점
+    view_ctl.set_up([0, 0.5, 0])     # 카메라의 위쪽 방향
     vis.run()
     vis.destroy_window()
 

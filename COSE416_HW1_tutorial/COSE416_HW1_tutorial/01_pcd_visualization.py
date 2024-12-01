@@ -4,9 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/04_zigzag_walk/pcd/pcd_000364.pcd"
-
-
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/07_straight_walk/pcd/pcd_000415.pcd"
 
 # pcd 파일 불러오고 시각화하는 함수
 def load_and_visualize_pcd(file_path, point_size=1.0):
