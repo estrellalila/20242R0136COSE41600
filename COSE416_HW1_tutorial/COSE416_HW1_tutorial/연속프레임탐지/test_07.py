@@ -8,12 +8,12 @@ import glob
 
 # PCD 처리 및 필터링 기준 설정
 voxel_size = 0.1  # Voxel downsampling 크기
-min_points_in_cluster = 10
-max_points_in_cluster = 100
+min_points_in_cluster = 50
+max_points_in_cluster = 200
 min_z_value = -2.0
-max_z_value = 0.5
+max_z_value = 5.0
 min_height = 0.3
-max_height = 2.0
+max_height = 5.0
 max_distance = 150.0
 max_ratio = 4.0
 threshold_ratio = 5.0
@@ -122,5 +122,5 @@ def visualize_pcd_sequence(pcd_folder_path):
 # 메인 실행
 if __name__ == "__main__":
     # PCD 파일이 있는 폴더 경로를 설정하세요
-    pcd_folder_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/06_straight_crawl/pcd"
+    pcd_folder_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/07_straight_walk/pcd"
     visualize_pcd_sequence(pcd_folder_path)

@@ -6,8 +6,7 @@ import hdbscan
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
 #straight_walk
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/05_straight_duck_walk/pcd/pcd_000416.pcd"
-
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/04_zigzag_walk/pcd/pcd_000028.pcd"
 # PCD 파일 읽기
 original_pcd = o3d.io.read_point_cloud(file_path)
 
@@ -44,7 +43,7 @@ final_point = sor_pcd.select_by_index(inliers, invert=True)
 
 # Z축 강조 가중치 적용, 적당히 긴 사람 형상 위해서,,
 weighted_points = np.asarray(final_point.points)
-weighted_points[:, 2] *= 1.3  # Z축에 가중치 추가
+weighted_points[:, 2] *= 1.2  # Z축에 가중치 추가
 
 # HDBSCAN 클러스터링
 clusterer = hdbscan.HDBSCAN(
@@ -68,7 +67,7 @@ final_point.colors = o3d.utility.Vector3dVector(colors)
 
 # 필터링 기준 설정
 min_points_in_cluster = 10   # 클러스터 내 최소 포인트 수
-max_points_in_cluster = 100  # 클러스터 내 최대 포인트 수
+max_points_in_cluster = 60  # 클러스터 내 최대 포인트 수
 
 # 수직(높이)
 # 차량 위 센서 기준임 (사람키기준)
@@ -78,11 +77,11 @@ max_z_value = 0.5         # 클러스터 내 최대 Z값
 
 # 클러스터 자체의 높이
 # 키가 낮은 객체(아이, 앉아 있는 사람 등)도 포함하려면 min_height를 낮추는 것이 좋습니다.
-min_height = 0.3            # Z값 차이의 최소값
-max_height = 2.0           # Z값 차이의 최대값
+min_height = 0.5            # Z값 차이의 최소값
+max_height = 2.5            # Z값 차이의 최대값
 
 #밀집도 기준, 동적인 사람도 포함해야 한다(보폭 커질 떄 등)
-max_distance = 150.0         # 원점으로부터의 최대 거리
+max_distance = 100.0         # 원점으로부터의 최대 거리
 
 # 바운딩 박스 필터링 조건 추가 (너무 넓은 바운딩 박스 제외)
 max_ratio = 4.0  # 가로/세로 비율의 최대 값 설정

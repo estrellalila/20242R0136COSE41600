@@ -6,7 +6,7 @@ import hdbscan
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
 #straight_walk
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/07_straight_walk/pcd/pcd_000215.pcd"
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/07_straight_walk/pcd/pcd_000315.pcd"
 
 # PCD 파일 읽기
 original_pcd = o3d.io.read_point_cloud(file_path)
@@ -67,19 +67,19 @@ colors[labels >= 0] = [0, 0, 1]  # 파란색으로 지정
 final_point.colors = o3d.utility.Vector3dVector(colors)
 
 # 필터링 기준 설정
-min_points_in_cluster = 10   # 클러스터 내 최소 포인트 수
-max_points_in_cluster = 100  # 클러스터 내 최대 포인트 수
+min_points_in_cluster = 50   # 클러스터 내 최소 포인트 수
+max_points_in_cluster = 200  # 클러스터 내 최대 포인트 수
 
 # 수직(높이)
 # 차량 위 센서 기준임 (사람키기준)
 min_z_value = -2.0          # 클러스터 내 최소 Z값
 # 이거 높이니까 되는데..?
-max_z_value = 0.5         # 클러스터 내 최대 Z값
+max_z_value = 5.0         # 클러스터 내 최대 Z값
 
 # 클러스터 자체의 높이
 # 키가 낮은 객체(아이, 앉아 있는 사람 등)도 포함하려면 min_height를 낮추는 것이 좋습니다.
 min_height = 0.3            # Z값 차이의 최소값
-max_height = 2.0           # Z값 차이의 최대값
+max_height = 5.0           # Z값 차이의 최대값
 
 #밀집도 기준, 동적인 사람도 포함해야 한다(보폭 커질 떄 등)
 max_distance = 150.0         # 원점으로부터의 최대 거리
