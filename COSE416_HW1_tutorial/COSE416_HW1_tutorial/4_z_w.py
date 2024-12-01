@@ -6,7 +6,7 @@ import hdbscan
 
 # pcd 파일 불러오기, 필요에 맞게 경로 수정
 #straight_walk
-file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/04_zigzag_walk/pcd/pcd_000138.pcd"
+file_path = "C:/Users/estre/Downloads/COSE416_HW1_data_v1/data/04_zigzag_walk/pcd/pcd_000338.pcd"
 # PCD 파일 읽기
 original_pcd = o3d.io.read_point_cloud(file_path)
 
@@ -19,13 +19,13 @@ downsample_pcd = original_pcd.voxel_down_sample(voxel_size=voxel_size)
 # ror_pcd = downsample_pcd.select_by_index(ind)
 
 # SOR (Statistical Outlier Removal)
-cl, ind = downsample_pcd.remove_statistical_outlier(nb_neighbors=10, std_ratio=6.0)
+cl, ind = downsample_pcd.remove_statistical_outlier(nb_neighbors=20, std_ratio=6.0)
 sor_pcd = downsample_pcd.select_by_index(ind)
 
 # RANSAC을 사용하여 평면 추정
-plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.2,
-                                             ransac_n=3,
-                                             num_iterations=3000)
+plane_model, inliers = sor_pcd.segment_plane(distance_threshold=0.1,
+                                             ransac_n=5,
+                                             num_iterations=4000)
 
 
 # 도로에 속하지 않는 포인트 (outliers) 추출
@@ -43,14 +43,14 @@ final_point = sor_pcd.select_by_index(inliers, invert=True)
 
 # Z축 강조 가중치 적용, 적당히 긴 사람 형상 위해서,,
 weighted_points = np.asarray(final_point.points)
-weighted_points[:, 2] *= 1.3  # Z축에 가중치 추가
+weighted_points[:, 2] *= 1.2  # Z축에 가중치 추가
 
 # HDBSCAN 클러스터링
 clusterer = hdbscan.HDBSCAN(
     #20이하인데 이게..(20)
-    min_cluster_size=20,      # 클러스터 내 최소 점 개수
+    min_cluster_size=15,      # 클러스터 내 최소 점 개수
     #10-15 유지 (13)
-    min_samples=13,            # 핵심 점으로 간주할 최소 이웃 수
+    min_samples=10,            # 핵심 점으로 간주할 최소 이웃 수
     metric='euclidean',       # 거리 척도
     cluster_selection_epsilon=0.2,  # 클러스터 선택 임계값
     allow_single_cluster=False  # 하나의 클러스터 허용 비활성화
@@ -66,14 +66,14 @@ colors[labels >= 0] = [0, 0, 1]  # 파란색으로 지정
 final_point.colors = o3d.utility.Vector3dVector(colors)
 
 # 필터링 기준 설정
-min_points_in_cluster = 60   # 클러스터 내 최소 포인트 수
-max_points_in_cluster = 120  # 클러스터 내 최대 포인트 수
+min_points_in_cluster = 10   # 클러스터 내 최소 포인트 수
+max_points_in_cluster = 60  # 클러스터 내 최대 포인트 수
 
 # 수직(높이)
 # 차량 위 센서 기준임 (사람키기준)
-min_z_value = -10.0          # 클러스터 내 최소 Z값
+min_z_value = -2.0          # 클러스터 내 최소 Z값
 # 이거 높이니까 되는데..?
-max_z_value = 0.0         # 클러스터 내 최대 Z값
+max_z_value = 0.5         # 클러스터 내 최대 Z값
 
 # 클러스터 자체의 높이
 # 키가 낮은 객체(아이, 앉아 있는 사람 등)도 포함하려면 min_height를 낮추는 것이 좋습니다.
@@ -81,10 +81,10 @@ min_height = 0.5            # Z값 차이의 최소값
 max_height = 2.5            # Z값 차이의 최대값
 
 #밀집도 기준, 동적인 사람도 포함해야 한다(보폭 커질 떄 등)
-max_distance = 150.0         # 원점으로부터의 최대 거리
+max_distance = 100.0         # 원점으로부터의 최대 거리
 
 # 바운딩 박스 필터링 조건 추가 (너무 넓은 바운딩 박스 제외)
-max_ratio = 5.0  # 가로/세로 비율의 최대 값 설정
+max_ratio = 4.0  # 가로/세로 비율의 최대 값 설정
 
 # # 1번, 2번, 3번 조건을 모두 만족하는 클러스터 필터링 및 바운딩 박스 생성
 
